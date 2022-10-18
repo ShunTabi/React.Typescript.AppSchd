@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import AppSchd from "../AppSchd";
-import DataTable from "../DataTable";
-import InputForm from "../InputForm";
-import SearchForm from "../SearchForm";
+import S_AppSchd from "../S_AppSchd";
+import S_DataTable from "../S_DataTable";
+import S_InputForm from "../S_InputForm";
+import S_SearchForm from "../S_SearchForm";
 
 //CSS in JS
 const Div001 = styled.div`
@@ -44,7 +44,7 @@ const Div004 = styled.div`
     font-size: 12px;
   }
 `;
-const ScheduleList = () => {
+const S_ScheduleOneDay = () => {
   //const
   const inputFormName = "▼予定フォーム";
   const dataTableName = "▼予定データ";
@@ -68,7 +68,7 @@ const ScheduleList = () => {
     { name: "収納箱へ" },
     { name: "ゴミ箱へ" },
   ];
-  const searchFormItem: { name: string }[] = [{ name: "目標/計画" }];
+  const searchFormItem: { name: string }[] = [{ name: "日付" }];
   const now: Date = new Date(),
     y: string = now.getFullYear().toString().padStart(4, "0"),
     m: string = (now.getMonth() + 1).toString().padStart(2, "0"),
@@ -91,14 +91,16 @@ const ScheduleList = () => {
     SCHEDULEUPDATEDATE: string;
   };
   //useState
+  const [searchFormValues, setSearchFormValues] = useState<string[]>([
+    `${y}-${m}-${d}`,
+  ]);
   const [inputFormValues, setInputFormValues] = useState<string[]>([
     "",
     "",
-    `${y}-${m}-${d}`,
+    searchFormValues[0],
     `${h}:${mm}`,
     `${h}:${mm}`,
   ]);
-  const [searchFormValues, setSearchFormValues] = useState<string[]>([""]);
   const [buttonName, setButtonName] = useState<string>("確定");
   const [contextmenuStatus, setContextmenuStatus] = useState<string>("");
   const [data, setData] = useState<typeData[]>([]);
@@ -122,10 +124,11 @@ const ScheduleList = () => {
     { name: "開始時間", kind: "text", items: [] },
     { name: "終了時間", kind: "text", items: [] },
   ];
+
   //function
   const getData = async () => {
-    const url = "http://localhost:8080/AppSchd/Schedule/ScheduleList";
-    const params = new URLSearchParams({ KEYWORD: searchFormValues[0] });
+    const url = "http://localhost:8080/AppSchd/Schedule/ScheduleOneDay";
+    const params = new URLSearchParams({ SCHEDULEDATE: searchFormValues[0] });
     const res = await axios.get(url, { params: params });
     setData(res.data.getData);
   };
@@ -156,14 +159,20 @@ const ScheduleList = () => {
     }
     const res = await axios.post(url, params);
     setButtonName("確定");
-    setInputFormValues(["", "", `${y}-${m}-${d}`, `${h}:${mm}`, `${h}:${mm}`]);
+    setInputFormValues([
+      "",
+      "",
+      searchFormValues[0],
+      `${h}:${mm}`,
+      `${h}:${mm}`,
+    ]);
     getData();
   };
   //useEffect
   useEffect(() => {
-    getData();
     getGoalItems();
-    getPlanItems();
+    console.log(searchFormValues);
+    getData();
   }, []);
   useEffect(() => {
     if (inputFormValues[0] === "") {
@@ -178,7 +187,7 @@ const ScheduleList = () => {
       setInputFormValues([
         "",
         "",
-        `${y}-${m}-${d}`,
+        searchFormValues[0],
         `${h}:${mm}`,
         `${h}:${mm}`,
       ]);
@@ -205,10 +214,10 @@ const ScheduleList = () => {
   return (
     <Div001>
       <Div002>
-        <AppSchd />
+        <S_AppSchd />
       </Div002>
       <Div003>
-        <InputForm
+        <S_InputForm
           inputFormItem={inputFormItem}
           inputFormValues={inputFormValues}
           setInputFormValues={setInputFormValues}
@@ -216,7 +225,7 @@ const ScheduleList = () => {
           inputFormName={inputFormName}
           execDML={execDML}
         />
-        <SearchForm
+        <S_SearchForm
           searchFormItem={searchFormItem}
           searchFormValues={searchFormValues}
           setSearchFormValues={setSearchFormValues}
@@ -224,7 +233,7 @@ const ScheduleList = () => {
         />
       </Div003>
       <Div004>
-        <DataTable
+        <S_DataTable
           dataTableItems={dataTableItems}
           dataTableName={dataTableName}
           data={data}
@@ -237,4 +246,4 @@ const ScheduleList = () => {
   );
 };
 
-export default ScheduleList;
+export default S_ScheduleOneDay;

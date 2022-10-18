@@ -80,7 +80,7 @@ const Table001 = styled.table`
     }
   }
 `;
-const DataTable = ({
+const S_DataTable = ({
   dataTableItems,
   dataTableName,
   data,
@@ -174,4 +174,4 @@ const DataTable = ({
   );
 };
 
-export default DataTable;
+export default S_DataTable;

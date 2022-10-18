@@ -11,10 +11,10 @@ const Ul001 = styled.ul`
   margin: 0;
   padding: 0;
   &:nth-child(1) li button {
-    background: linear-gradient(mediumblue, cornflowerblue);
+    background: linear-gradient(green, springgreen);
   }
   &:nth-child(2) li button {
-    background: linear-gradient(lightsteelblue, cornflowerblue);
+    background: linear-gradient(aquamarine, springgreen);
   }
   > li button {
     padding: 5px;
@@ -25,7 +25,7 @@ const Ul001 = styled.ul`
     cursor: pointer;
     border-style: none;
     width: 100px;
-    height: 35px;
+    height: 45px;
     font-size: 12px;
     box-shadow: 1px 1px 4px inset;
     &:hover {
@@ -37,9 +37,9 @@ const Ul001 = styled.ul`
 const Li001 = styled.li`
   list-style-type: none;
   width: 100px;
-  height: 35px;
+  height: 45px;
 `;
-const AppSchd = () => {
+const B_AppBook = () => {
   //useNavigate
   const navigate = useNavigate();
   //const
@@ -53,86 +53,23 @@ const AppSchd = () => {
     }[]
   >([
     {
-      name: "Record",
+      name: "SearchBook",
       status: false,
       items: [
         {
-          name: "種別",
-          link: "Record/RecordGenre",
-          status: false,
-        },
-        {
-          name: "目標",
-          link: "Record/RecordGoal",
-          status: false,
-        },
-        {
-          name: "計画",
-          link: "Record/RecordPlan",
+          name: "書籍検索",
+          link: "SearchBook",
           status: false,
         },
       ],
     },
     {
-      name: "Schedule",
+      name: "SearchMyBook",
       status: false,
       items: [
         {
-          name: "日別予定",
-          link: "Schedule/ScheduleOneDay",
-          status: false,
-        },
-        {
-          name: "週間予定",
-          link: "Schedule/ScheduleWeek",
-          status: false,
-        },
-        {
-          name: "予定リスト",
-          link: "Schedule/ScheduleList",
-          status: false,
-        },
-      ],
-    },
-    {
-      name: "ToDo",
-      status: false,
-      items: [
-        {
-          name: "ToDo",
-          link: "ToDo/ToDo",
-          status: false,
-        },
-        {
-          name: "Done",
-          link: "ToDo/Done",
-          status: false,
-        },
-      ],
-    },
-    {
-      name: "Analysis",
-      status: false,
-      items: [
-        {
-          name: "Chart",
-          link: "Analysis/Chart",
-          status: false,
-        },
-      ],
-    },
-    {
-      name: "Bin",
-      status: false,
-      items: [
-        {
-          name: "収納箱",
-          link: "Bin/StorageBin",
-          status: false,
-        },
-        {
-          name: "ゴミ箱",
-          link: "Bin/RecycleBin",
+          name: "自分の書籍",
+          link: "SearchMyBook",
           status: false,
         },
       ],
@@ -173,7 +110,7 @@ const AppSchd = () => {
           <Li001 key={index}>
             <button
               onClick={() => {
-                navigate("../../" + item.link);
+                navigate("../" + item.link);
               }}
             >
               {item.name}
@@ -184,4 +121,4 @@ const AppSchd = () => {
     </Div001>
   );
 };
-export default AppSchd;
+export default B_AppBook;

@@ -7,7 +7,7 @@ const Fieldset001 = styled.fieldset`
     border-spacing: 0;
   }
 `;
-const SearchForm = ({
+const S_SearchForm = ({
   searchFormItem,
   searchFormValues,
   setSearchFormValues,
@@ -59,4 +59,4 @@ const SearchForm = ({
   );
 };
 
-export default SearchForm;
+export default S_SearchForm;

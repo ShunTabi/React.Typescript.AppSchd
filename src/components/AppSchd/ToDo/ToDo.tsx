@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import AppSchd from "../AppSchd";
-import DataTable from "../DataTable";
-import InputForm from "../InputForm";
-import SearchForm from "../SearchForm";
+import S_AppSchd from "../S_AppSchd";
+import S_DataTable from "../S_DataTable";
+import S_InputForm from "../S_InputForm";
+import S_SearchForm from "../S_SearchForm";
 
 //CSS in JS
 const Div001 = styled.div`
@@ -44,7 +44,7 @@ const Div004 = styled.div`
     font-size: 12px;
   }
 `;
-const ToDoToDo = () => {
+const S_ToDoToDo = () => {
   //const
   const inputFormName = "▼ToDoフォーム";
   const dataTableName = "▼ToDoデータ";
@@ -191,10 +191,10 @@ const ToDoToDo = () => {
   return (
     <Div001>
       <Div002>
-        <AppSchd />
+        <S_AppSchd />
       </Div002>
       <Div003>
-        <InputForm
+        <S_InputForm
           inputFormItem={inputFormItem}
           inputFormValues={inputFormValues}
           setInputFormValues={setInputFormValues}
@@ -202,7 +202,7 @@ const ToDoToDo = () => {
           inputFormName={inputFormName}
           execDML={execDML}
         />
-        <SearchForm
+        <S_SearchForm
           searchFormItem={searchFormItem}
           searchFormValues={searchFormValues}
           setSearchFormValues={setSearchFormValues}
@@ -210,7 +210,7 @@ const ToDoToDo = () => {
         />
       </Div003>
       <Div004>
-        <DataTable
+        <S_DataTable
           dataTableItems={dataTableItems}
           dataTableName={dataTableName}
           data={data}
@@ -223,4 +223,4 @@ const ToDoToDo = () => {
   );
 };
 
-export default ToDoToDo;
+export default S_ToDoToDo;

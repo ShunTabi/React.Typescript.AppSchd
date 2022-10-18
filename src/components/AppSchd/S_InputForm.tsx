@@ -7,7 +7,7 @@ const Fieldset001 = styled.fieldset`
     border-spacing: 0;
   }
 `;
-const InputForm = ({
+const S_InputForm = ({
   inputFormItem,
   inputFormValues,
   setInputFormValues,
@@ -108,4 +108,4 @@ const InputForm = ({
   );
 };
 
-export default InputForm;
+export default S_InputForm;
