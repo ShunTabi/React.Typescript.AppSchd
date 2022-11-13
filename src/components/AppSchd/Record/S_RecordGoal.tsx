@@ -1,183 +1,192 @@
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import styled from "styled-components";
-import S_AppSchd from "../S_AppSchd";
-import S_DataTable from "../S_DataTable";
-import S_InputForm from "../S_InputForm";
-import S_SearchForm from "../S_SearchForm";
-
+import S_DataTable1 from "../Com/S_DataTable1";
+import S_FormInput1 from "../Com/S_FormInput1";
+import S_FormSearch1 from "../Com/S_FormSearch1";
+import S_Menu from "../Com/S_Menu";
 //CSS in JS
+const Div000 = styled.div`
+  height: 100vh;
+  width: 100vw;
+`;
 const Div001 = styled.div`
   display: flex;
-  weidth: 100vh;
-  height: 100vh;
-  background: linear-gradient(mediumslateblue, royalblue);
+  height: 86vh;
+  width: 100vw;
 `;
 const Div002 = styled.div`
-  width: 100px;
+  height: 100%;
+  width: 300px;
+  background: lightblue;
+  overflow-y: auto;
 `;
 const Div003 = styled.div`
-  @media (width < 700px) {
-    flex: 30%;
-    font-size: 8px;
-  }
-  @media (width >= 700px) and (width < 1000px) {
-    flex: 30%;
-    font-size: 10px;
-  }
-  @media (width >= 1000px) {
-    flex: 25%;
-    font-size: 12px;
-  }
+  height: 100%;
+  width: 95vw;
+  background: lightsteelblue;
+  overflow-y: auto;
 `;
 const Div004 = styled.div`
-  @media (width < 700px) {
-    flex: 70%;
-    font-size: 8px;
-  }
-  @media (width >= 700px) and (width < 1000px) {
-    flex: 70%;
-    font-size: 10px;
-  }
-  @media (width >= 1000px) {
-    flex: 75%;
-    font-size: 12px;
-  }
+  height: 100%;
+  width: 5vw;
+  background: gainsboro;
+  overflow-y: auto;
 `;
+//const1
+const tableLabels: { name: string; display: string; type: string }[] = [
+  { name: "GOALID", display: "none", type: "normal" },
+  { name: "GENREID", display: "none", type: "normal" },
+  { name: "種別名", display: "visible", type: "normal" },
+  { name: "目標名", display: "visible", type: "normal" },
+  { name: "更新日", display: "visible", type: "normal" },
+];
+const tableName: string = "種別データ";
 const S_RecordGoal = () => {
-  //const
-  const inputFormName = "▼目標フォーム";
-  const dataTableName = "▼目標データ";
-  const dataTableItems: { name: string; display: string }[] = [
-    { name: "GOALID", display: "none" },
-    { name: "GENREID", display: "none" },
-    { name: "種別名", display: "visible" },
-    { name: "目標名", display: "visible" },
-    { name: "更新日", display: "visible" },
-  ];
-  const contextmenuItems: { name: string }[] = [
-    { name: "新規" },
-    { name: "更新" },
-    { name: "収納箱へ" },
-    { name: "ゴミ箱へ" },
-  ];
-  const searchFormItem: { name: string }[] = [{ name: "目標名" }];
   //type
-  type typeData = {
+  type dataType = {
     GOALID: string;
     GENREID: string;
     GENRENAME: string;
     GOALNAME: string;
     GOALUPDATEDATE: string;
-  };
+  }[];
   //useState
-  const [inputFormValues, setInputFormValues] = useState<string[]>(["", ""]);
-  const [searchFormValues, setSearchFormValues] = useState<string[]>([""]);
-  const [buttonName, setButtonName] = useState<string>("確定");
-  const [contextmenuStatus, setContextmenuStatus] = useState<string>("");
-  const [data, setData] = useState<typeData[]>([]);
-  const [selected, setSelected] = useState<typeData[]>([]);
+  const [inputValues, setInputValues] = useState<string[]>(["", ""]);
+  const [searchValues, setSearchValues] = useState<string[]>([""]);
+  const [buttonName, setButtonName] = useState("確定");
+  const [data, setData] = useState<dataType>([]);
+  const [selected, setSelected] = useState<dataType>([]);
   const [GOALID, setGOALID] = useState<string>("");
-  const [genreItems, setGenreItems] = useState<{ ID: string; NAME: string }[]>(
+  const [genreName, setGenreNames] = useState<{ ID: string; NAME: string }[]>(
     []
   );
-  //
-  const inputFormItem: { name: string; kind: string; items: any }[] = [
-    {
-      name: "種別名",
-      kind: "select",
-      items: genreItems,
-    },
-    {
-      name: "目標名",
-      kind: "text",
-      items: [],
-    },
-  ];
   //function
-  const getData = async () => {
+  const Clearing = () => {
+    setButtonName("確定");
+    setInputValues(["", ""]);
+    setGOALID("");
+    setSelected([]);
+  };
+  const selectValues = async () => {
     const url = "http://localhost:8080/AppSchd/Record/RecordGoal";
-    const params = new URLSearchParams({ GOALNAME: searchFormValues[0] });
+    const params = new URLSearchParams({ GOALNAME: searchValues[0] });
     const res = await axios.get(url, { params: params });
     setData(res.data.getData);
+    console.log(res.data.getData);
+    if (res.status === 200) {
+      console.log(`検索しました【${searchValues}】`);
+    } else {
+      console.log(res);
+    }
+    Clearing();
   };
-  const getGenreItems = async () => {
+  const selectGenreNames = async () => {
     const url =
       "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreItems";
     const res = await fetch(url);
     const output = await res.json();
-    setGenreItems(output.getData);
+    setGenreNames(output.getData);
   };
-  const execDML = async () => {
+  const dmlExec = async () => {
     let url = "";
     const params = new URLSearchParams();
-    params.append("GENREID", inputFormValues[0]);
-    params.append("GOALNAME", inputFormValues[1]);
+    params.append("GENREID", inputValues[0]);
+    params.append("GOALNAME", inputValues[1]);
     if (GOALID === "" && buttonName === "確定") {
       url = "http://localhost:8080/AppSchd/Record/RecordGoal/RecordGoalINSERT";
     } else if (GOALID !== "" && buttonName === "更新") {
       url = "http://localhost:8080/AppSchd/Record/RecordGoal/RecordGoalUPDATE";
       params.append("GOALID", GOALID);
     }
+    console.log(params);
     const res = await axios.post(url, params);
-    setButtonName("確定");
-    setInputFormValues(["", ""]);
-    getData();
+    if (res.status === 200) {
+      console.log(`データ操作しました【${inputValues}】`);
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const selectedUpdateItem = () => {
+    setGOALID(selected[0].GOALID);
+    setInputValues([selected[0].GENREID, selected[0].GOALNAME]);
+    setButtonName("更新");
   };
   //useEffect
   useEffect(() => {
-    getData();
-    getGenreItems();
+    selectValues();
+    selectGenreNames();
+    console.log("RECORDGENREを読み込みました。");
   }, []);
-  useEffect(() => {
-    if (contextmenuStatus === "新規") {
-      setButtonName("確定");
-      setInputFormValues(["", ""]);
-      setGOALID("");
-    } else if (contextmenuStatus === "更新") {
-      setButtonName("更新");
-      if (selected !== undefined) {
-        setInputFormValues([selected[0].GENREID, selected[0].GOALNAME]);
-        setGOALID(selected[0].GOALID);
-      }
-    } else if (contextmenuStatus === "収納箱へ") {
-    } else if (contextmenuStatus === "ゴミ箱へ") {
-    }
-    setContextmenuStatus("");
-  }, [contextmenuStatus]);
-
+  //const2
+  const inputLabels: {
+    name: string;
+    type: string;
+    box: { ID: string; NAME: string }[];
+  }[] = [
+    {
+      name: "種別名",
+      type: "select",
+      box: genreName,
+    },
+    {
+      name: "目標名",
+      type: "text",
+      box: [],
+    },
+  ];
+  const searchLabels: {
+    name: string;
+    type: string;
+    box: { ID: string; NAME: string }[];
+  }[] = [
+    {
+      name: "目標名",
+      type: "text",
+      box: [],
+    },
+  ];
+  const contextmenuItems: { img: string; name: string; func: Function }[] = [
+    { img: "", name: "新規", func: Clearing },
+    { img: "", name: "更新", func: selectedUpdateItem },
+    { img: "", name: "削除", func: selectValues },
+    { img: "", name: "最新化", func: selectValues },
+    { img: "", name: "収納箱へ", func: selectValues },
+    { img: "", name: "ゴミ箱へ", func: selectValues },
+  ];
   return (
-    <Div001>
-      <Div002>
-        <S_AppSchd />
-      </Div002>
-      <Div003>
-        <S_InputForm
-          inputFormItem={inputFormItem}
-          inputFormValues={inputFormValues}
-          setInputFormValues={setInputFormValues}
-          buttonName={buttonName}
-          inputFormName={inputFormName}
-          execDML={execDML}
-        />
-        <S_SearchForm
-          searchFormItem={searchFormItem}
-          searchFormValues={searchFormValues}
-          setSearchFormValues={setSearchFormValues}
-          getData={getData}
-        />
-      </Div003>
-      <Div004>
-        <S_DataTable
-          dataTableItems={dataTableItems}
-          dataTableName={dataTableName}
-          data={data}
-          setSelected={setSelected}
-          contextmenuItems={contextmenuItems}
-          setContextmenuStatus={setContextmenuStatus}
-        />
-      </Div004>
-    </Div001>
+    <Div000>
+      <S_Menu />
+      <Div001>
+        <Div002>
+          <S_FormInput1
+            inputLabels={inputLabels}
+            inputValues={inputValues}
+            setInputValues={setInputValues}
+            buttonName={buttonName}
+            dmlExec={dmlExec}
+          />
+          <S_FormSearch1
+            searchLabels={searchLabels}
+            searchValues={searchValues}
+            setSearchValues={setSearchValues}
+            selectValues={selectValues}
+          />
+        </Div002>
+        <Div003>
+          <S_DataTable1
+            tableName={tableName}
+            tableLabels={tableLabels}
+            data={data}
+            contextmenuItems={contextmenuItems}
+            setSelected={setSelected}
+          />
+        </Div003>
+        <Div004 />
+      </Div001>
+    </Div000>
   );
 };
 

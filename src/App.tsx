@@ -1,28 +1,25 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import styled from "styled-components";
-import B_SearchBook from "./components/AppBook/SearchBook/B_SearchBook";
-import B_SearchMyBook from "./components/AppBook/SearchMyBook/B_SearchMyBook";
-import S_RecycleBin from "./components/AppSchd/Bin/S_RecycleBin";
-import S_StorageBin from "./components/AppSchd/Bin/S_StorageBin";
+import S_BinStorage from "./components/AppSchd/Bin/S_BinStorage";
+import S_NoteList from "./components/AppSchd/Note/S_NoteList";
+import S_NoteOneDay from "./components/AppSchd/Note/S_NoteOneDay";
 import S_RecordGenre from "./components/AppSchd/Record/S_RecordGenre";
 import S_RecordGoal from "./components/AppSchd/Record/S_RecordGoal";
 import S_RecordPlan from "./components/AppSchd/Record/S_RecordPlan";
 import S_ScheduleList from "./components/AppSchd/Schedule/S_ScheduleList";
 import S_ScheduleOneDay from "./components/AppSchd/Schedule/S_ScheduleOneDay";
-import S_ToDoDone from "./components/AppSchd/ToDo/Done";
-import S_ToDoToDo from "./components/AppSchd/ToDo/ToDo";
-import NotFound from "./components/NotFound";
+import S_ScheduleWeek from "./components/AppSchd/Schedule/S_ScheduleWeek";
+import S_ToDoDone from "./components/AppSchd/ToDo/S_ToDoDone";
+import S_ToDoToDo from "./components/AppSchd/ToDo/S_ToDoToDo";
+
 //CSS in JS
-const Div001 = styled.div`
-  user-select: none;
-  width: 100%;
-  font-size: 12px;
-`;
-function App() {
+const Div001 = styled.div``;
+const App = () => {
   return (
-    <Div001 className="App">
+    <Div001>
       <BrowserRouter>
         <Routes>
+          <Route path="/"></Route>
           <Route path="/AppSchd">
             <Route path="Record">
               <Route path="RecordGenre" element={<S_RecordGenre />}></Route>
@@ -34,27 +31,29 @@ function App() {
                 path="ScheduleOneDay"
                 element={<S_ScheduleOneDay />}
               ></Route>
-              <Route path="ScheduleWeek"></Route>
+              <Route path="ScheduleWeek" element={<S_ScheduleWeek />}></Route>
               <Route path="ScheduleList" element={<S_ScheduleList />}></Route>
             </Route>
             <Route path="ToDo">
-              <Route path="ToDo" element={<S_ToDoToDo />}></Route>
-              <Route path="Done" element={<S_ToDoDone />}></Route>
+              <Route path="ToDoToDo" element={<S_ToDoToDo />}></Route>
+              <Route path="ToDoDone" element={<S_ToDoDone />}></Route>
+            </Route>
+            <Route path="Note">
+              <Route path="NoteOneDay" element={<S_NoteOneDay />}></Route>
+              <Route path="NoteList" element={<S_NoteList />}></Route>
+            </Route>
+            <Route path="Analysis">
+              <Route path="AnalysisChart"></Route>
             </Route>
             <Route path="Bin">
-              <Route path="StorageBin" element={<S_StorageBin />}></Route>
-              <Route path="RecycleBin" element={<S_RecycleBin />}></Route>
+              <Route path="BinStorage" element={<S_BinStorage />}></Route>
             </Route>
           </Route>
-          <Route path="/AppBook">
-            <Route path="SearchBook" element={<B_SearchBook />}></Route>
-            <Route path="SearchMyBook" element={<B_SearchMyBook />}></Route>
-          </Route>
-          <Route path="*" element={<NotFound />}></Route>
+          <Route path="*" element={<h1>NoFound</h1>}></Route>
         </Routes>
       </BrowserRouter>
     </Div001>
   );
-}
+};
 
 export default App;

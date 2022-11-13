@@ -1,82 +1,74 @@
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import styled from "styled-components";
-import S_AppSchd from "../S_AppSchd";
-import S_DataTable from "../S_DataTable";
-import S_InputForm from "../S_InputForm";
-import S_SearchForm from "../S_SearchForm";
-
+import S_DataTable1 from "../Com/S_DataTable1";
+import S_FormInput1 from "../Com/S_FormInput1";
+import S_FormSearch1 from "../Com/S_FormSearch1";
+import S_Menu from "../Com/S_Menu";
 //CSS in JS
+const Div000 = styled.div`
+  height: 100vh;
+  width: 100vw;
+`;
 const Div001 = styled.div`
   display: flex;
-  weidth: 100vh;
-  height: 100vh;
-  background: linear-gradient(mediumslateblue, royalblue);
+  height: 86vh;
+  width: 100vw;
 `;
 const Div002 = styled.div`
-  width: 100px;
+  height: 100%;
+  width: 300px;
+  background: lightblue;
+  overflow-y: auto;
 `;
 const Div003 = styled.div`
-  @media (width < 700px) {
-    flex: 30%;
-    font-size: 8px;
-  }
-  @media (width >= 700px) and (width < 1000px) {
-    flex: 30%;
-    font-size: 10px;
-  }
-  @media (width >= 1000px) {
-    flex: 25%;
-    font-size: 12px;
-  }
+  height: 100%;
+  width: 95vw;
+  background: lightsteelblue;
+  overflow-y: auto;
 `;
 const Div004 = styled.div`
-  @media (width < 700px) {
-    flex: 70%;
-    font-size: 8px;
-  }
-  @media (width >= 700px) and (width < 1000px) {
-    flex: 70%;
-    font-size: 10px;
-  }
-  @media (width >= 1000px) {
-    flex: 75%;
-    font-size: 12px;
-  }
+  height: 100%;
+  width: 5vw;
+  background: gainsboro;
+  overflow-y: auto;
 `;
-const S_ScheduleList = () => {
-  //const
-  const inputFormName = "▼予定フォーム";
-  const dataTableName = "▼予定データ";
-  const dataTableItems: { name: string; display: string }[] = [
-    { name: "SCHEDULEID", display: "none" },
-    { name: "GOALID", display: "none" },
-    { name: "目標名", display: "visible" },
-    { name: "PLANID", display: "none" },
-    { name: "計画名", display: "visible" },
-    { name: "STATUSID", display: "none" },
-    { name: "進捗", display: "visible" },
-    { name: "日付", display: "visible" },
-    { name: "開始時間", display: "visible" },
-    { name: "終了時間", display: "visible" },
-    { name: "工数(H)", display: "visible" },
-    { name: "更新日", display: "visible" },
-  ];
-  const contextmenuItems: { name: string }[] = [
-    { name: "新規" },
-    { name: "更新" },
-    { name: "収納箱へ" },
-    { name: "ゴミ箱へ" },
-  ];
-  const searchFormItem: { name: string }[] = [{ name: "目標/計画" }];
-  const now: Date = new Date(),
-    y: string = now.getFullYear().toString().padStart(4, "0"),
-    m: string = (now.getMonth() + 1).toString().padStart(2, "0"),
-    d: string = now.getDate().toString().padStart(2, "0"),
-    h: string = now.getHours().toString().padStart(2, "0"),
+//const1
+const tableLabels: { name: string; display: string; type: string }[] = [
+  { name: "SCHEDULEID", display: "none", type: "normal" },
+  { name: "GOALID", display: "none", type: "normal" },
+  { name: "目標名", display: "visible", type: "normal" },
+  { name: "PLANID", display: "none", type: "normal" },
+  { name: "計画名", display: "visible", type: "normal" },
+  { name: "STATUSID", display: "none", type: "normal" },
+  { name: "進捗", display: "visible", type: "normal" },
+  { name: "日付", display: "visible", type: "normal" },
+  { name: "開始時間", display: "visible", type: "normal" },
+  { name: "終了時間", display: "visible", type: "normal" },
+  { name: "工数", display: "visible", type: "normal" },
+  { name: "更新日", display: "visible", type: "normal" },
+];
+const tableName: string = "予定データ";
+const getDate = (m1: number, d1: number) => {
+  let now: Date = new Date();
+  now.setMonth(now.getMonth() + 1 + m1);
+  now.setDate(now.getDate() + d1);
+  const y: string = now.getFullYear().toString(),
+    m: string = now.getMonth().toString().padStart(2, "0"),
+    d: string = now.getDate().toString().padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+const getTime = (h1: number, mm1: number) => {
+  let now: Date = new Date();
+  now.setHours(now.getHours() + h1);
+  now.setMinutes(now.getMinutes() + mm1);
+  const h: string = now.getHours().toString(),
     mm: string = now.getMinutes().toString().padStart(2, "0");
+  return `${h}:${mm}`;
+};
+const S_ScheduleList = () => {
   //type
-  type typeData = {
+  type dataType = {
     SCHEDULEID: string;
     GOALID: string;
     GOALNAME: string;
@@ -85,69 +77,69 @@ const S_ScheduleList = () => {
     STATUSID: string;
     STATUSNAME: string;
     SCHEDULEDATE: string;
-    SCHEDULESTARTTIME: string;
     SCHEDULEENDTIME: string;
+    SCHEDULESTARTTIME: string;
     SCHEDULEHOURS: string;
     SCHEDULEUPDATEDATE: string;
-  };
+  }[];
   //useState
-  const [inputFormValues, setInputFormValues] = useState<string[]>([
+  const [searchValues, setSearchValues] = useState<string[]>([""]);
+  const [inputValues, setInputValues] = useState<string[]>([
     "",
     "",
-    `${y}-${m}-${d}`,
-    `${h}:${mm}`,
-    `${h}:${mm}`,
+    getDate(0, 0),
+    getTime(0, 0),
+    getTime(0, 0),
   ]);
-  const [searchFormValues, setSearchFormValues] = useState<string[]>([""]);
-  const [buttonName, setButtonName] = useState<string>("確定");
-  const [contextmenuStatus, setContextmenuStatus] = useState<string>("");
-  const [data, setData] = useState<typeData[]>([]);
-  const [selected, setSelected] = useState<typeData[]>([]);
+  const [buttonName, setButtonName] = useState("確定");
+  const [data, setData] = useState<dataType>([]);
+  const [selected, setSelected] = useState<dataType>([]);
   const [SCHEDULEID, setSCHEDULEID] = useState<string>("");
-  const [goalItems, setGoalItems] = useState<{ ID: string; NAME: string }[]>(
+  const [goalNames, setGoalNames] = useState<{ ID: string; NAME: string }[]>(
     []
   );
-  const [planItems, setPlanItems] = useState<{ ID: string; NAME: string }[]>(
+  const [planNames, setPlanNames] = useState<{ ID: string; NAME: string }[]>(
     []
   );
-  //
-  const inputFormItem: {
-    name: string;
-    kind: string;
-    items: { ID: string; NAME: string }[];
-  }[] = [
-    { name: "目標名", kind: "select", items: goalItems },
-    { name: "計画名", kind: "select", items: planItems },
-    { name: "日付", kind: "text", items: [] },
-    { name: "開始時間", kind: "text", items: [] },
-    { name: "終了時間", kind: "text", items: [] },
-  ];
   //function
-  const getData = async () => {
+  const Clearing = () => {
+    setButtonName("確定");
+    setInputValues(["", "", getDate(0, 0), getTime(0, 0), getTime(0, 0)]);
+    setSCHEDULEID("");
+    setSelected([]);
+  };
+  const selectValues = async () => {
     const url = "http://localhost:8080/AppSchd/Schedule/ScheduleList";
-    const params = new URLSearchParams({ KEYWORD: searchFormValues[0] });
+    const params = new URLSearchParams({ KEYWORD: searchValues[0] });
     const res = await axios.get(url, { params: params });
     setData(res.data.getData);
+    if (res.status === 200) {
+      console.log(`検索しました【${searchValues}】`);
+    } else {
+      console.log(res);
+    }
+    Clearing();
   };
-  const getGoalItems = async () => {
+  const selectGoalNames = async () => {
     const url =
       "http://localhost:8080/AppSchd/Record/RecordGoal/RecordGoalItems";
-    const res = await axios.get(url);
-    setGoalItems(res.data.getData);
+    const res = await fetch(url);
+    const output = await res.json();
+    setGoalNames(output.getData);
   };
-  const getPlanItems = async () => {
+  const selectPlanNames = async () => {
     const url = `http://localhost:8080/AppSchd/Record/RecordPlan/RecordPlanItems`;
-    const params = new URLSearchParams({ GOALID: inputFormValues[0] });
+    const params = new URLSearchParams({ GOALID: inputValues[0] });
     const res = await axios.get(url, { params: params });
-    setPlanItems(res.data.getData);
+    setPlanNames(res.data.getData);
   };
-  const execDML = async () => {
+  const dmlExec = async () => {
     let url = "";
     const params = new URLSearchParams();
-    params.append("PLANID", inputFormValues[1]);
-    params.append("SCHEDULEDATE", inputFormValues[2]);
-    params.append("SCHEDULESTARTTIME", inputFormValues[3]);
-    params.append("SCHEDULEENDTIME", inputFormValues[4]);
+    params.append("PLANID", inputValues[1]);
+    params.append("SCHEDULEDATE", inputValues[2]);
+    params.append("SCHEDULESTARTTIME", inputValues[3]);
+    params.append("SCHEDULEENDTIME", inputValues[4]);
     if (SCHEDULEID === "" && buttonName === "確定") {
       url = "http://localhost:8080/AppSchd/Schedule/ScheduleINSERT";
     } else if (SCHEDULEID !== "" && buttonName === "更新") {
@@ -155,85 +147,120 @@ const S_ScheduleList = () => {
       params.append("SCHEDULEID", SCHEDULEID);
     }
     const res = await axios.post(url, params);
-    setButtonName("確定");
-    setInputFormValues(["", "", `${y}-${m}-${d}`, `${h}:${mm}`, `${h}:${mm}`]);
-    getData();
+    if (res.status === 200) {
+      console.log(`データ操作しました【${inputValues}】`);
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const selectedUpdateItem = () => {
+    setSCHEDULEID(selected[0].SCHEDULEID);
+    setInputValues([
+      selected[0].GOALID,
+      selected[0].PLANID,
+      selected[0].SCHEDULEDATE,
+      selected[0].SCHEDULESTARTTIME,
+      selected[0].SCHEDULEENDTIME,
+    ]);
+    setButtonName("更新");
   };
   //useEffect
   useEffect(() => {
-    getData();
-    getGoalItems();
-    getPlanItems();
+    selectValues();
+    selectGoalNames();
+    console.log("SCHEDULELISTを読み込みました。");
   }, []);
   useEffect(() => {
-    if (inputFormValues[0] === "") {
-      setPlanItems([]);
-    } else {
-      getPlanItems();
-    }
-  }, [inputFormValues[0]]);
-  useEffect(() => {
-    if (contextmenuStatus === "新規") {
-      setButtonName("確定");
-      setInputFormValues([
-        "",
-        "",
-        `${y}-${m}-${d}`,
-        `${h}:${mm}`,
-        `${h}:${mm}`,
-      ]);
-      setSCHEDULEID("");
-    } else if (contextmenuStatus === "更新") {
-      setButtonName("更新");
-      if (selected !== undefined) {
-        setInputFormValues([
-          selected[0].GOALID,
-          selected[0].PLANID,
-          selected[0].SCHEDULEDATE,
-          selected[0].SCHEDULESTARTTIME,
-          selected[0].SCHEDULEENDTIME,
-        ]);
-        console.log(inputFormValues);
-        setSCHEDULEID(selected[0].SCHEDULEID);
-      }
-    } else if (contextmenuStatus === "収納箱へ") {
-    } else if (contextmenuStatus === "ゴミ箱へ") {
-    }
-    setContextmenuStatus("");
-  }, [contextmenuStatus]);
-
+    selectPlanNames();
+  }, [inputValues[0]]);
+  //const2
+  const inputLabels: {
+    name: string;
+    type: string;
+    box: { ID: string; NAME: string }[];
+  }[] = [
+    {
+      name: "目標名",
+      type: "select",
+      box: goalNames,
+    },
+    {
+      name: "計画名",
+      type: "select",
+      box: planNames,
+    },
+    {
+      name: "日付",
+      type: "text",
+      box: [],
+    },
+    {
+      name: "開始時間",
+      type: "text",
+      box: [],
+    },
+    {
+      name: "終了時間",
+      type: "text",
+      box: [],
+    },
+  ];
+  const searchLabels: {
+    name: string;
+    type: string;
+    box: { ID: string; NAME: string }[];
+  }[] = [
+    {
+      name: "目標名/計画名",
+      type: "text",
+      box: [],
+    },
+  ];
+  const contextmenuItems: { img: string; name: string; func: Function }[] = [
+    { img: "", name: "新規", func: Clearing },
+    { img: "", name: "更新", func: selectedUpdateItem },
+    { img: "", name: "削除", func: selectValues },
+    { img: "", name: "ステータス変更(→未)", func: selectValues },
+    { img: "", name: "ステータス変更(→対応中)", func: selectValues },
+    { img: "", name: "ステータス変更(→完了)", func: selectValues },
+    { img: "", name: "ステータス変更(→保留)", func: selectValues },
+    { img: "", name: "最新化", func: selectValues },
+    { img: "", name: "収納箱へ", func: selectValues },
+    { img: "", name: "ゴミ箱へ", func: selectValues },
+  ];
   return (
-    <Div001>
-      <Div002>
-        <S_AppSchd />
-      </Div002>
-      <Div003>
-        <S_InputForm
-          inputFormItem={inputFormItem}
-          inputFormValues={inputFormValues}
-          setInputFormValues={setInputFormValues}
-          buttonName={buttonName}
-          inputFormName={inputFormName}
-          execDML={execDML}
-        />
-        <S_SearchForm
-          searchFormItem={searchFormItem}
-          searchFormValues={searchFormValues}
-          setSearchFormValues={setSearchFormValues}
-          getData={getData}
-        />
-      </Div003>
-      <Div004>
-        <S_DataTable
-          dataTableItems={dataTableItems}
-          dataTableName={dataTableName}
-          data={data}
-          setSelected={setSelected}
-          contextmenuItems={contextmenuItems}
-          setContextmenuStatus={setContextmenuStatus}
-        />
-      </Div004>
-    </Div001>
+    <Div000>
+      <S_Menu />
+      <Div001>
+        <Div002>
+          <S_FormInput1
+            inputLabels={inputLabels}
+            inputValues={inputValues}
+            setInputValues={setInputValues}
+            buttonName={buttonName}
+            dmlExec={dmlExec}
+          />
+          <S_FormSearch1
+            searchLabels={searchLabels}
+            searchValues={searchValues}
+            setSearchValues={setSearchValues}
+            selectValues={selectValues}
+          />
+        </Div002>
+        <Div003>
+          <S_DataTable1
+            tableName={tableName}
+            tableLabels={tableLabels}
+            data={data}
+            contextmenuItems={contextmenuItems}
+            setSelected={setSelected}
+          />
+        </Div003>
+        <Div004 />
+      </Div001>
+    </Div000>
   );
 };
 

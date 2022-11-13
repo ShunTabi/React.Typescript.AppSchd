@@ -17,55 +17,76 @@ const Div001 = styled.div`
 `;
 const Div002 = styled.div`
   height: 100%;
-  width: 300px;
+  width: 600px;
   background: lightblue;
   overflow-y: auto;
 `;
 const Div003 = styled.div`
   height: 100%;
-  width: 95vw;
+  width: 100vw;
   background: lightsteelblue;
   overflow-y: auto;
 `;
 const Div004 = styled.div`
   height: 100%;
-  width: 5vw;
+  width: 0vw;
   background: gainsboro;
   overflow-y: auto;
 `;
 //const1
 const tableLabels: { name: string; display: string; type: string }[] = [
-  { name: "GENREID", display: "none", type: "normal" },
-  { name: "種別名", display: "visible", type: "normal" },
-  { name: "更新日", display: "visible", type: "normal" },
+  { name: "NOTETITLEID", display: "none", type: "normal" },
+  { name: "SOURCEID", display: "none", type: "normal" },
+  { name: "NOTETITLE", display: "none", type: "normal" },
+  { name: "INFO", display: "visible", type: "textarea" },
+  { name: "ノート", display: "visible", type: "textarea" },
+  { name: "NOTEDATE", display: "none", type: "normal" },
+  { name: "NOTEVERSION", display: "none", type: "normal" },
 ];
-const tableName: string = "種別データ";
-const S_RecordGenre = () => {
+const S_NoteList = () => {
   //type
   type dataType = {
-    GENREID: string;
-    GENRENAME: string;
-    GENREUPDATEDATE: string;
+    NOTETITLEID: string;
+    SOURCEID: string;
+    NOTETITLE: string;
+    NOTEINFO: string;
+    NOTETEXT: string;
+    NOTEDATE: string;
+    NOTEVERSION: string;
   }[];
+  //const
+  const tableName: string = "ノートデータ";
+  const getDate = (m1: number, d1: number) => {
+    let now: Date = new Date();
+    now.setMonth(now.getMonth() + 1 + m1);
+    now.setDate(now.getDate() + d1);
+    const y: string = now.getFullYear().toString(),
+      m: string = now.getMonth().toString().padStart(2, "0"),
+      d: string = now.getDate().toString().padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
   //useState
-  const [inputValues, setInputValues] = useState<string[]>([""]);
+  const [inputValues, setInputValues] = useState<string[]>(["", ""]);
   const [searchValues, setSearchValues] = useState<string[]>([""]);
   const [buttonName, setButtonName] = useState("確定");
   const [data, setData] = useState<dataType>([]);
   const [selected, setSelected] = useState<dataType>([]);
-  const [GENREID, setGENREID] = useState<string>("");
+  const [NOTETITLEID, setNOTETITLEID] = useState<string>("");
+  const [SOURCEID, setSOURCEID] = useState<string>("");
+  const [NOTEVERSION, setNOTEVERSION] = useState<string>("");
   //function
   const Clearing = () => {
     setButtonName("確定");
-    setInputValues([""]);
-    setGENREID("");
+    setInputValues(["", ""]);
+    setNOTETITLEID("");
     setSelected([]);
   };
   const selectValues = async () => {
-    const url = "http://localhost:8080/AppSchd/Record/RecordGenre";
-    const params = new URLSearchParams({ GENRENAME: searchValues[0] });
+    const url = "http://localhost:8080/AppSchd/Note/NoteList";
+    const params = new URLSearchParams({ KEYWORD: searchValues[0] });
     const res = await axios.get(url, { params: params });
     setData(res.data.getData);
+    console.log(data);
     if (res.status === 200) {
       console.log(`検索しました【${searchValues}】`);
     } else {
@@ -76,14 +97,20 @@ const S_RecordGenre = () => {
   const dmlExec = async () => {
     let url = "";
     const params = new URLSearchParams();
-    params.append("GENRENAME", inputValues[0]);
-    if (GENREID === "" && buttonName === "確定") {
-      url =
-        "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreINSERT";
-    } else if (GENREID !== "" && buttonName === "更新") {
-      url =
-        "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreUPDATE";
-      params.append("GENREID", GENREID);
+    params.append("NOTETITLE", inputValues[0]);
+    params.append("NOTETEXT", inputValues[1]);
+    params.append("NOTEDATE", getDate(0, 0));
+    params.append("NOTETYPE", "0");
+    params.append("KINDID", "--");
+    if (NOTETITLEID === "" && buttonName === "確定") {
+      url = "http://localhost:8080/AppSchd/Note/NoteINSERT";
+      params.append("NOTEVERSION", "0");
+      params.append("SOURCEID", "0");
+    } else if (NOTETITLEID !== "" && buttonName === "更新") {
+      url = "http://localhost:8080/AppSchd/Note/NoteUPDATE";
+      params.append("NOTETITLEID", NOTETITLEID);
+      params.append("NOTEVERSION", NOTEVERSION);
+      params.append("SOURCEID", SOURCEID);
     }
     const res = await axios.post(url, params);
     if (res.status === 200) {
@@ -95,14 +122,16 @@ const S_RecordGenre = () => {
     }
   };
   const selectedUpdateItem = () => {
-    setGENREID(selected[0].GENREID);
-    setInputValues([selected[0].GENRENAME]);
+    setNOTETITLEID(selected[0].NOTETITLEID);
+    setSOURCEID(selected[0].SOURCEID);
+    setNOTEVERSION(selected[0].NOTEVERSION);
+    setInputValues([selected[0].NOTETITLE, selected[0].NOTETEXT]);
     setButtonName("更新");
   };
   //useEffect
   useEffect(() => {
     selectValues();
-    console.log("RECORDGENREを読み込みました。");
+    console.log("NOTELISTを読み込みました。");
   }, []);
   //const2
   const inputLabels: {
@@ -111,8 +140,13 @@ const S_RecordGenre = () => {
     box: { ID: string; NAME: string }[];
   }[] = [
     {
-      name: "種別名",
+      name: "タイトル",
       type: "text",
+      box: [],
+    },
+    {
+      name: "ノート",
+      type: "textarea",
       box: [],
     },
   ];
@@ -122,7 +156,7 @@ const S_RecordGenre = () => {
     box: { ID: string; NAME: string }[];
   }[] = [
     {
-      name: "種別名",
+      name: "ノート",
       type: "text",
       box: [],
     },
@@ -132,8 +166,6 @@ const S_RecordGenre = () => {
     { img: "", name: "更新", func: selectedUpdateItem },
     { img: "", name: "削除", func: selectValues },
     { img: "", name: "最新化", func: selectValues },
-    { img: "", name: "収納箱へ", func: selectValues },
-    { img: "", name: "ゴミ箱へ", func: selectValues },
   ];
   return (
     <Div000>
@@ -169,4 +201,4 @@ const S_RecordGenre = () => {
   );
 };
 
-export default S_RecordGenre;
+export default S_NoteList;
