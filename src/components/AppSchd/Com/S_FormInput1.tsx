@@ -31,18 +31,25 @@ const Div000 = styled.div`
           }
         }
         > textarea {
-          height: 250px;
-          width: 380px;
+          height: 220px;
+          width: 350px;
           border: none;
           padding: 2px;
           resize: vertical;
-          max-height: 500px;
+          max-height: 490px;
           overflow: auto;
           &:focus {
             outline: 0;
             box-shadow: 0 0 0 2px rgb(33, 150, 243) inset;
           }
         }
+        > p {
+          label {
+            padding-right: 8px;
+            &: last-child {
+              padding: 0;
+            }
+          }
         > button {
           height: 20px;
           width: 35px;
@@ -125,9 +132,33 @@ const S_FormInput1 = ({
                             index2 === index ? e.target.value : item
                           )
                         );
-                        //console.log(inputValues);
                       }}
                     ></textarea>
+                  );
+                } else if (item.type === "radio") {
+                  return (
+                    <p>
+                      {item.box.map((item2, index2) => (
+                        <label key={index2}>
+                          <input
+                            type="radio"
+                            name="radio"
+                            value={item2.ID}
+                            checked={item2.ID === inputValues[index]}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                              setInputValues(
+                                inputValues.map((item2, index2) =>
+                                  index === index2 ? e.target.value : item2
+                                )
+                              );
+                            }}
+                          />
+                          {item2.NAME}
+                        </label>
+                      ))}
+                    </p>
                   );
                 }
               })()}

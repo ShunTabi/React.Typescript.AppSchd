@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 import S_BinStorage from "./components/AppSchd/Bin/S_BinStorage";
 import S_NoteList from "./components/AppSchd/Note/S_NoteList";
-import S_NoteOneDay from "./components/AppSchd/Note/S_NoteOneDay";
+import S_NoteRecord from "./components/AppSchd/Note/S_NoteRecord";
 import S_RecordGenre from "./components/AppSchd/Record/S_RecordGenre";
 import S_RecordGoal from "./components/AppSchd/Record/S_RecordGoal";
 import S_RecordPlan from "./components/AppSchd/Record/S_RecordPlan";
@@ -39,7 +39,7 @@ const App = () => {
               <Route path="ToDoDone" element={<S_ToDoDone />}></Route>
             </Route>
             <Route path="Note">
-              <Route path="NoteOneDay" element={<S_NoteOneDay />}></Route>
+              <Route path="NoteRecord" element={<S_NoteRecord />}></Route>
               <Route path="NoteList" element={<S_NoteList />}></Route>
             </Route>
             <Route path="Analysis">

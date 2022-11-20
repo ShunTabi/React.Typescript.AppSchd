@@ -52,14 +52,21 @@ const S_RecordGenre = () => {
   const [searchValues, setSearchValues] = useState<string[]>([""]);
   const [buttonName, setButtonName] = useState("確定");
   const [data, setData] = useState<dataType>([]);
-  const [selected, setSelected] = useState<dataType>([]);
+  //const [selected, setSelected] = useState<dataType>([]);
   const [GENREID, setGENREID] = useState<string>("");
+  const [contextmenuItems, setContextmenuItems] = useState<
+    {
+      img: string;
+      name: string;
+      func: Function;
+    }[]
+  >([]);
   //function
   const Clearing = () => {
     setButtonName("確定");
     setInputValues([""]);
     setGENREID("");
-    setSelected([]);
+    //setSelected([]);
   };
   const selectValues = async () => {
     const url = "http://localhost:8080/AppSchd/Record/RecordGenre";
@@ -94,10 +101,51 @@ const S_RecordGenre = () => {
       console.log(res);
     }
   };
-  const selectedUpdateItem = () => {
-    setGENREID(selected[0].GENREID);
-    setInputValues([selected[0].GENRENAME]);
+  const dmlExecUPDATEVISIBLE0 = async (item: dataType) => {
+    const url =
+      "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreUPDATEVISIBLESTATUS";
+    const params = new URLSearchParams({
+      GENREID: item[0].GENREID,
+      VISIBLESTATUS: "0",
+    });
+    const res = await axios.post(url, params);
+    if (res.status === 200) {
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const dmlExecUPDATEVISIBLE2 = async (item: dataType) => {
+    const url =
+      "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreUPDATEVISIBLESTATUS";
+    const params = new URLSearchParams({
+      GENREID: item[0].GENREID,
+      VISIBLESTATUS: "2",
+    });
+    const res = await axios.post(url, params);
+    if (res.status === 200) {
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const selectedUpdateItem = (item: dataType) => {
+    //setGENREID(selected[0].GENREID);
+    //setInputValues([selected[0].GENRENAME]);
+    setGENREID(item[0].GENREID);
+    setInputValues([item[0].GENRENAME]);
     setButtonName("更新");
+  };
+  const createContextmenu = (item: dataType) => {
+    const box: { img: string; name: string; func: Function }[] = [];
+    box.push({ img: "", name: "新規", func: Clearing });
+    box.push({ img: "", name: "更新", func: selectedUpdateItem });
+    box.push({ img: "", name: "最新化", func: selectValues });
+    box.push({ img: "", name: "収納箱へ", func: dmlExecUPDATEVISIBLE2 });
+    box.push({ img: "", name: "ゴミ箱へ", func: dmlExecUPDATEVISIBLE0 });
+    setContextmenuItems(box);
   };
   //useEffect
   useEffect(() => {
@@ -127,14 +175,6 @@ const S_RecordGenre = () => {
       box: [],
     },
   ];
-  const contextmenuItems: { img: string; name: string; func: Function }[] = [
-    { img: "", name: "新規", func: Clearing },
-    { img: "", name: "更新", func: selectedUpdateItem },
-    { img: "", name: "削除", func: selectValues },
-    { img: "", name: "最新化", func: selectValues },
-    { img: "", name: "収納箱へ", func: selectValues },
-    { img: "", name: "ゴミ箱へ", func: selectValues },
-  ];
   return (
     <Div000>
       <S_Menu />
@@ -160,7 +200,8 @@ const S_RecordGenre = () => {
             tableLabels={tableLabels}
             data={data}
             contextmenuItems={contextmenuItems}
-            setSelected={setSelected}
+            //setSelected={setSelected}
+            createContextmenu={createContextmenu}
           />
         </Div003>
         <Div004 />

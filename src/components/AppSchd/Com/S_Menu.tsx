@@ -165,10 +165,10 @@ const S_Menu = () => {
       img: require("../../../resources/AppSchd/000Note.png"),
       sub: [
         {
-          name0: "NoteOneDay",
-          name1: "ノート",
-          img: require("../../../resources/AppSchd/001NoteOneDay.png"),
-          link: "Note/NoteOneDay",
+          name0: "NoteRecord",
+          name1: "記録",
+          img: require("../../../resources/AppSchd/001NoteRecord.png"),
+          link: "Note/NoteRecord",
         },
         {
           name0: "NoteList",

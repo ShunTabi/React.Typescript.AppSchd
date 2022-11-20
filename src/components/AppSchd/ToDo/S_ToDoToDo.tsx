@@ -37,6 +37,7 @@ const Div004 = styled.div`
 //const1
 const tableLabels: { name: string; display: string; type: string }[] = [
   { name: "TODOID", display: "none", type: "normal" },
+  { name: "", display: "visible", type: "normal" },
   { name: "GOALID", display: "none", type: "normal" },
   { name: "目標名", display: "visible", type: "normal" },
   { name: "PLANID", display: "none", type: "normal" },
@@ -53,15 +54,22 @@ const getDate = (m1: number, d1: number) => {
   let now: Date = new Date();
   now.setMonth(now.getMonth() + 1 + m1);
   now.setDate(now.getDate() + d1);
-  const y: string = now.getFullYear().toString(),
-    m: string = now.getMonth().toString().padStart(2, "0"),
-    d: string = now.getDate().toString().padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  let y: number = now.getFullYear();
+  let m: number = now.getMonth();
+  const d: number = now.getDate();
+  if (m == 0) {
+    m = 12;
+    y -= 1;
+  }
+  return `${y.toString()}-${m.toString().padStart(2, "0")}-${d
+    .toString()
+    .padStart(2, "0")}`;
 };
 const S_ToDoToDo = () => {
   //type
   type dataType = {
     TODOID: string;
+    ALERTSTATUS: string;
     GOALID: string;
     GOALNAME: string;
     PLANID: string;
@@ -84,7 +92,7 @@ const S_ToDoToDo = () => {
   const [data, setData] = useState<dataType>([]);
   const [data0, setData0] = useState<dataType>([]);
   const [data1, setData1] = useState<dataType>([]);
-  const [selected, setSelected] = useState<dataType>([]);
+  //const [selected, setSelected] = useState<dataType>([]);
   const [TODOID, setTODOID] = useState<string>("");
   const [goalNames, setGoalNames] = useState<{ ID: string; NAME: string }[]>(
     []
@@ -92,12 +100,19 @@ const S_ToDoToDo = () => {
   const [planNames, setPlanNames] = useState<{ ID: string; NAME: string }[]>(
     []
   );
+  const [contextmenuItems, setContextmenuItems] = useState<
+    {
+      img: string;
+      name: string;
+      func: Function;
+    }[]
+  >([]);
   //function
   const Clearing = () => {
     setButtonName("確定");
     setInputValues(["", "", "", getDate(0, 0)]);
     setTODOID("");
-    setSelected([]);
+    //setSelected([]);
   };
   const selectValues = async () => {
     const url = "http://localhost:8080/AppSchd/ToDo/ToDoToDo";
@@ -127,6 +142,7 @@ const S_ToDoToDo = () => {
     params.append("TODOENDDATE", inputValues[3]);
     if (TODOID === "" && buttonName === "確定") {
       url = "http://localhost:8080/AppSchd/ToDo/ToDoINSERT";
+      params.append("STATUSID", "2");
     } else if (TODOID !== "" && buttonName === "更新") {
       url = "http://localhost:8080/AppSchd/ToDo/ToDoUPDATE";
       params.append("TODOID", TODOID);
@@ -140,7 +156,38 @@ const S_ToDoToDo = () => {
       console.log(res);
     }
   };
-  const selectedUpdateItem = () => {
+  const dmlExecUPDATEVISIBLE0 = async (item: dataType) => {
+    const url = "http://localhost:8080/AppSchd/ToDo/ToDoUPDATEVISIBLESTATUS";
+    const params = new URLSearchParams({
+      TODOID: item[0].TODOID,
+      VISIBLESTATUS: "0",
+    });
+    const res = await axios.post(url, params);
+    if (res.status === 200) {
+      console.log(`データ操作しました【${inputValues}】`);
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const dmlExecUPDATEVISIBLE2 = async (item: dataType) => {
+    const url = "http://localhost:8080/AppSchd/ToDo/ToDoUPDATEVISIBLESTATUS";
+    const params = new URLSearchParams({
+      TODOID: item[0].TODOID,
+      VISIBLESTATUS: "2",
+    });
+    const res = await axios.post(url, params);
+    if (res.status === 200) {
+      console.log(`データ操作しました【${inputValues}】`);
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const selectedUpdateItem = (item: dataType) => {
+    /*
     setTODOID(selected[0].TODOID);
     setInputValues([
       selected[0].GOALID,
@@ -148,7 +195,39 @@ const S_ToDoToDo = () => {
       selected[0].TODONAME,
       selected[0].TODOENDDATE,
     ]);
+    */
+    setTODOID(item[0].TODOID);
+    setInputValues([
+      item[0].GOALID,
+      item[0].PLANID,
+      item[0].TODONAME,
+      item[0].TODOENDDATE,
+    ]);
     setButtonName("更新");
+  };
+  const createContextmenu = (item: dataType) => {
+    const STATUSID: string = item[0].STATUSID;
+    const box: { img: string; name: string; func: Function }[] = [];
+    box.push({ img: "", name: "新規", func: Clearing });
+    if (STATUSID != "3" && STATUSID != "4") {
+      box.push({ img: "", name: "更新", func: selectedUpdateItem });
+    }
+    box.push({ img: "", name: "最新化", func: selectValues });
+    if (STATUSID != "2") {
+      box.push({ img: "", name: "進捗更新(→未)", func: selectValues });
+    }
+    if (STATUSID != "1") {
+      box.push({ img: "", name: "進捗更新(→対応中)", func: selectValues });
+    }
+    if (STATUSID != "3") {
+      box.push({ img: "", name: "進捗更新(→完了)", func: selectValues });
+    }
+    if (STATUSID != "4") {
+      box.push({ img: "", name: "進捗更新(→保留)", func: selectValues });
+    }
+    box.push({ img: "", name: "収納箱へ", func: dmlExecUPDATEVISIBLE2 });
+    box.push({ img: "", name: "ゴミ箱へ", func: dmlExecUPDATEVISIBLE0 });
+    setContextmenuItems(box);
   };
   //useEffect
   useEffect(() => {
@@ -210,18 +289,6 @@ const S_ToDoToDo = () => {
       box: [],
     },
   ];
-  const contextmenuItems: { img: string; name: string; func: Function }[] = [
-    { img: "", name: "新規", func: Clearing },
-    { img: "", name: "更新", func: selectedUpdateItem },
-    { img: "", name: "削除", func: selectValues },
-    { img: "", name: "ステータス変更(→未)", func: selectValues },
-    { img: "", name: "ステータス変更(→対応中)", func: selectValues },
-    { img: "", name: "ステータス変更(→完了)", func: selectValues },
-    { img: "", name: "ステータス変更(→保留)", func: selectValues },
-    { img: "", name: "最新化", func: selectValues },
-    { img: "", name: "収納箱へ", func: selectValues },
-    { img: "", name: "ゴミ箱へ", func: selectValues },
-  ];
   return (
     <Div000>
       <S_Menu />
@@ -247,14 +314,16 @@ const S_ToDoToDo = () => {
             tableLabels={tableLabels}
             data={data0}
             contextmenuItems={contextmenuItems}
-            setSelected={setSelected}
+            //setSelected={setSelected}
+            createContextmenu={createContextmenu}
           />
           <S_DataTable1
             tableName={tableName1}
             tableLabels={tableLabels}
             data={data1}
             contextmenuItems={contextmenuItems}
-            setSelected={setSelected}
+            //setSelected={setSelected}
+            createContextmenu={createContextmenu}
           />
         </Div003>
         <Div004 />

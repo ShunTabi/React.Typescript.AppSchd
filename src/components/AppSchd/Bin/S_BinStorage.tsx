@@ -63,6 +63,13 @@ const S_BinStorage = () => {
   const [data1, setData1] = useState<dataType>([]);
   const [selected, setSelected] = useState<dataType>([]);
   const [COL_KEY, setCOL_KEY] = useState<string>("");
+  const [contextmenuItems, setContextmenuItems] = useState<
+    {
+      img: string;
+      name: string;
+      func: Function;
+    }[]
+  >([]);
   //function
   const Clearing = () => {
     setCOL_KEY("");
@@ -75,6 +82,78 @@ const S_BinStorage = () => {
     setData(res.data.getData);
     Clearing();
   };
+  const dmlExecUPDATEVISIBLE = async (item: dataType) => {
+    const KEY: string[] = item[0].COL_KEY.split("^");
+    const params = new URLSearchParams();
+    let url = "";
+    if (KEY[0] === "GENRE") {
+      url =
+        "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreUPDATEVISIBLESTATUS";
+      params.append("GENREID", KEY[1]);
+    } else if (KEY[0] === "GOAL") {
+      url =
+        "http://localhost:8080/AppSchd/Record/RecordGoal/RecordGoalUPDATEVISIBLESTATUS";
+      params.append("GOALID", KEY[1]);
+    } else if (KEY[0] === "PLAN") {
+      url =
+        "http://localhost:8080/AppSchd/Record/RecordPlan/RecordPlanUPDATEVISIBLESTATUS";
+      params.append("PLANID", KEY[1]);
+    } else if (KEY[0] === "SCHEDULE") {
+      url =
+        "http://localhost:8080/AppSchd/Schedule/ScheduleUPDATEVISIBLESTATUS";
+      params.append("SCHEDULEID", KEY[1]);
+    } else if (KEY[0] === "TODO") {
+      url = "http://localhost:8080/AppSchd/ToDo/ToDoUPDATEVISIBLESTATUS";
+      params.append("TODOID", KEY[1]);
+    }
+    params.append("VISIBLESTATUS", "1");
+    const res = await axios.post(url, params);
+    if (res.status === 200) {
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const dmlExecDELETE = async (item: dataType) => {
+    const KEY: string[] = item[0].COL_KEY.split("^");
+    const params = new URLSearchParams();
+    let url = "";
+    if (KEY[0] === "GENRE") {
+      url =
+        "http://localhost:8080/AppSchd/Record/RecordGenre/RecordGenreDELETE";
+      params.append("GENREID", KEY[1]);
+    } else if (KEY[0] === "GOAL") {
+      url = "http://localhost:8080/AppSchd/Record/RecordGoal/RecordGoalDELETE";
+      params.append("GOALID", KEY[1]);
+    } else if (KEY[0] === "PLAN") {
+      url = "http://localhost:8080/AppSchd/Record/RecordPlan/RecordPlanDELETE";
+      params.append("PLANID", KEY[1]);
+    } else if (KEY[0] === "SCHEDULE") {
+      url = "http://localhost:8080/AppSchd/Schedule/ScheduleDELETE";
+      params.append("SCHEDULEID", KEY[1]);
+    } else if (KEY[0] === "TODO") {
+      url = "http://localhost:8080/AppSchd/ToDo/ToDoDELETE";
+      params.append("TODOID", KEY[1]);
+    }
+    const res = await axios.post(url, params);
+    if (res.status === 200) {
+      selectValues();
+      Clearing();
+    } else {
+      console.log(res);
+    }
+  };
+  const createContextmenu = (item: dataType) => {
+    const VISIBLESTATUS = item[0].COL_VISIBLESTATUS;
+    const box: { img: string; name: string; func: Function }[] = [];
+    box.push({ img: "", name: "最新化", func: selectValues });
+    box.push({ img: "", name: "復元", func: dmlExecUPDATEVISIBLE });
+    if (VISIBLESTATUS == "0") {
+      box.push({ img: "", name: "完全削除", func: dmlExecDELETE });
+    }
+    setContextmenuItems(box);
+  };
   //useEffect
   useEffect(() => {
     selectValues();
@@ -83,6 +162,7 @@ const S_BinStorage = () => {
   useEffect(() => {
     let box0: dataType = [];
     let box1: dataType = [];
+    console.log(data);
     data.map((item) => {
       if (item.COL_VISIBLESTATUS == "0") {
         box1 = [...box1, item];
@@ -105,15 +185,6 @@ const S_BinStorage = () => {
       box: [],
     },
   ];
-  const contextmenuItems0: { img: string; name: string; func: Function }[] = [
-    { img: "", name: "最新化", func: selectValues },
-    { img: "", name: "復元", func: selectValues },
-  ];
-  const contextmenuItems1: { img: string; name: string; func: Function }[] = [
-    { img: "", name: "最新化", func: selectValues },
-    { img: "", name: "復元", func: selectValues },
-    { img: "", name: "完全削除", func: selectValues },
-  ];
   return (
     <Div000>
       <S_Menu />
@@ -131,15 +202,17 @@ const S_BinStorage = () => {
             tableName={tableName0}
             tableLabels={tableLabels}
             data={data0}
-            contextmenuItems={contextmenuItems0}
-            setSelected={setSelected}
+            contextmenuItems={contextmenuItems}
+            //setSelected={setSelected}
+            createContextmenu={createContextmenu}
           />
           <S_DataTable1
             tableName={tableName1}
             tableLabels={tableLabels}
             data={data1}
-            contextmenuItems={contextmenuItems1}
-            setSelected={setSelected}
+            contextmenuItems={contextmenuItems}
+            //setSelected={setSelected}
+            createContextmenu={createContextmenu}
           />
         </Div003>
         <Div004 />

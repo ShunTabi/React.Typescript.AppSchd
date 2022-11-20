@@ -54,6 +54,7 @@ const Div002 = styled.div`
       }
     }
     > tbody {
+      vertical-align: top;
       > tr {
         background: lightsteelblue;
         > td {
@@ -98,21 +99,25 @@ const S_DataTable1 = ({
   tableLabels,
   data,
   contextmenuItems,
-  setSelected,
+  //setSelected,
+  createContextmenu,
 }: {
   tableName: string;
   tableLabels: { name: string; display: string; type: string }[];
   data: any[];
   contextmenuItems: { img: string; name: string; func: Function }[];
-  setSelected: Function;
+  //setSelected: Function;
+  createContextmenu: Function;
 }) => {
   //useState
   const [contextmenuStatus, setContextmenuStatus] = useState<boolean>(false);
   const [location, setLocation] = useState<number[]>([0, 0]);
+  const [selected, setSelected] = useState<any[]>([]);
   return (
     <Div000
       style={{
         visibility: data.length > 0 ? "visible" : "hidden",
+        width: data.length > 0 ? "auto" : "0",
       }}
     >
       <fieldset>
@@ -125,6 +130,8 @@ const S_DataTable1 = ({
           }}
           onMouseLeave={() => {
             setContextmenuStatus(false);
+            createContextmenu([]);
+            setSelected([]);
           }}
         >
           <ul>
@@ -132,8 +139,11 @@ const S_DataTable1 = ({
               <li
                 key={index}
                 onClick={() => {
-                  item.func();
+                  const data = selected;
+                  item.func(data);
                   setContextmenuStatus(false);
+                  createContextmenu([]);
+                  setSelected([]);
                 }}
               >
                 {item.name}
@@ -161,6 +171,7 @@ const S_DataTable1 = ({
                       e: React.MouseEvent<HTMLElement, MouseEvent>
                     ) => {
                       setSelected([item]);
+                      createContextmenu([item]);
                       setLocation([e.pageY - 10, e.pageX - 10]);
                       setContextmenuStatus(true);
                     }}
